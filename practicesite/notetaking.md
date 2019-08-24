@@ -32,3 +32,12 @@
 - href를 달 때, template tag를 사용하여 <a href="{% url 'about' %}">FOO</a> 이렇게 써줘야 한다. 
 - html에서 tag의 name을 정해주면 이는 views.py에서 손쉽게 foo = request.GET['bar']를 통해 전달받을 수 있다. ROR에서 배웠던 params랑 비슷한 역할이다.
 - views.py에서 결과값을 return하여 보낼 떄 render 내에서 3번째 파라미터로 방금 받은 parmas 같은 값을 딕셔너리로 매칭시켜 보낼 수 있다. {'spam': foo} 처럼. 이걸 html template에서 {{spam}} 으로 부를 수 있다. 
+
+## model & admin 이론
+
+- 포인트1: Model의 DB를 Views로 어떻게 옮길 것인가? 
+- 포인트2: Django Admin은 어떻게 이용하는가? 
+- Models.py 안에 class로 데이터 형태를 설정한다. 
+- DB는 Django와 별개이다. default는 sqllite3이지만 바꿀 수 있음. 
+- $ python manage.py makemigrations 마이그레이션 파일을 만들고 / $ python manage.py migrate 만든 models.py를 적용시킴
+- admin 계정 만들기: $ python manage.py createsuperuser 이후 admin.py에 데이터 등록
