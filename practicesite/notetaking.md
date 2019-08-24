@@ -10,7 +10,7 @@
 - cd <프로젝트 이름 디렉토리> 후, $ python manage.py runserver 로 서버 동작 확인. 
 - app. 프로젝트의 구성단위로, python manage.py startapp app_이름
 - 만들어진 app 폴더 내에 templates라는 이름의 폴더를 생성한다. 
-- app을 추가했으면 settings.py의 INSTALLED_APPS에 추가해줘야 한다. 형식은 app이름.apps.첫글자대문자app이름Config 그 이유는, app폴더의 apps.py에 가보면 첫글자대문자app이름COnfig 라는 이름의 Class가 선언되어있기 때문이다. 이 클래스를 연결시킨 것이다. 
+- app을 추가했으면 settings.py의 INSTALLED_APPS에 추가해줘야 한다. 형식은 app이름.apps.첫글자대문자app이름Config 그 이유는, app폴더의 apps.py에 가보면 첫글자대문자app이름Config 라는 이름의 Class가 선언되어있기 때문이다. 이 클래스를 연결시킨 것이다. 
 - 이걸 잘못 쓰면 runserver 할 때 [WinError 123]이 뜬다. 하지만 진짜 문제는 에러메세지 중간의 ModuleNotFoundError: No module named 'practicesite.apps' 부분이다. 
 - views.py에서 함수를 만든다. 일단 render로 간단히 작성한다. 
 - 그리고 프로젝트 폴더 내의 urls.py를 통해 urlpatterns를 추가해준다. 이 때, 앱폴더 내의 views.py에서 쓰는 함수들을 쓰고싶으므로 이를 urls.py내에서 import 해준다. --> import practiceapp.views
@@ -32,6 +32,7 @@
 - href를 달 때, template tag를 사용하여 <a href="{% url 'about' %}">FOO</a> 이렇게 써줘야 한다. 
 - html에서 tag의 name을 정해주면 이는 views.py에서 손쉽게 foo = request.GET['bar']를 통해 전달받을 수 있다. ROR에서 배웠던 params랑 비슷한 역할이다.
 - views.py에서 결과값을 return하여 보낼 떄 render 내에서 3번째 파라미터로 방금 받은 parmas 같은 값을 딕셔너리로 매칭시켜 보낼 수 있다. {'spam': foo} 처럼. 이걸 html template에서 {{spam}} 으로 부를 수 있다. 
+- 참고: app을 지우고 싶을 땐 어떻게 할까? 그냥 directory를 지우고 그 app이랑 연관된 코드들을 수동으로 지워준다. (https://stackoverflow.com/questions/11382734/how-to-delete-an-app-from-a-django-project)
 
 ## model & admin 이론
 
@@ -41,3 +42,21 @@
 - DB는 Django와 별개이다. default는 sqllite3이지만 바꿀 수 있음. 
 - $ python manage.py makemigrations 마이그레이션 파일을 만들고 / $ python manage.py migrate 만든 models.py를 적용시킴
 - admin 계정 만들기: $ python manage.py createsuperuser 이후 admin.py에 데이터 등록
+
+## model & admin 실습 
+
+- blog app을 새로 만들어 시작한다. INSTALLED_APPS에 추가해준다. 
+- 우선 models.py에서 모델 class를 만든다. models.Model에서 상속을 받도록 한다. 
+- 이후 이를 db와 연결시키기 위해 $ python manage.py makemigrations / $ python manage.py migrate 를 한다. 
+- 이제 admin 계정을 만들기 위해 $ python manage.py createsuperuser 을 통해 admin 계정을 만든다. 
+- admin.py에서 from .models import Blog 를 통해 모델을 import 해주고 admin.site.register(Blog) 를 통해 모델을 등록한다. 
+- 그러면 Blog object(1)와 같이 생기는데, 이를 object가 아닌 title로 나타내기 위하여 models.py에 def __str__(self): \n return self.title 를 쓴다. 
+- 이제 views.py에서 해당 모델의 데이터를 보낼 수 있도록 함수를 짜자. 우선 from .models import Blog 를 통해 import 후, def home(request): 이하 코드를 작성한다. 
+- 이 때 Blog.objects 는 모델로부터 객체 목록을 전달받을 수 있도록 해준다. 이를 Query Set 이라고 부른다. 추후 이를 정렬하거나 기능을 표시해주는 것은 method를 통해 해준다. 
+- 우선 url 연결을 위해 urlpatterns에 blog를 등록해준다. 물론 이 때도 blog.views 를 import 해줘야 한다. 안해주면 runserver에서 오류가 나고, pylint로도 표시가 된다. (일단 home으로)
+- 참고: pylint는 때로 Django 상의 logic을 오류로 표시할 때가 있다. (models.py에서 Blog class가 명시적으로 .objects 메소드를 가지가 있지 않으므로 그냥 오류로 표시함.)
+- .html에서 전달된 {{blog}}와 같이 표시하면 오브젝트 객체명만 뜬다. 이 안의 콘텐츠를 가져오기 위해선 Query set method를 써줘야 한다. 
+- Query set method는 [모델.쿼리셋objects.메소드] 의 형식을 가진다. .all, .count, .first, .last 등 여러 가지가 있다. 추후 정리한다. 
+- 중요 참고: settings.py의 INSTALLED_APP의 순서는 중요하다. 이를 순서대로 읽어 처리하기 때문에 홈페이지에 올 것을 가장 먼저 적어주는 것이 좋다. 또한 namespacing도 중요하다. 같은 'home'이라고 naming을 하면 추후 잘못 reference 되는 등의 문제가 생길 수 있다. 따라서 최대한 explicit하게 namespacing을 하여 표현해 주는 것이 중요하다. 
+- VSCode Django extension 참고: Django extension (by Baptiste Darthenay)를 설치하면 {% %} template tag 내의 python syntax highlighting이 가능하다. 하지만 이를 설치하면 /templates/*.html들은 django-html으로 분류되어 emmet(자동완성)이 꺼지게 되는데, 이를 켜주기 위해선 VSCode의 settings.json (globally 적용되는 User settings) 에서 "emmet.includeLanguages": {"django-html": "html"}, 를 추가해줘야 한다. (VSCode extension 페이지 참조. https://marketplace.visualstudio.com/items?itemName=batisteo.vscode-django)
+- 
