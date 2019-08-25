@@ -2,9 +2,11 @@
 
 ## venv vs pipenv 
 
-# 장고 시작
+# 장고 강의
 
-## project와 app 시작: hello world!
+## project 시작
+
+### project와 app 시작: hello world!
 
 - 프로젝트를 시작하기 위하여 $ django-admin startproject 프로젝트_이름
 - cd <프로젝트 이름 디렉토리> 후, $ python manage.py runserver 로 서버 동작 확인. 
@@ -16,7 +18,7 @@
 - 그리고 프로젝트 폴더 내의 urls.py를 통해 urlpatterns를 추가해준다. 이 때, 앱폴더 내의 views.py에서 쓰는 함수들을 쓰고싶으므로 이를 urls.py내에서 import 해준다. --> import practiceapp.views
 - path('', practiceapp.views.home, name='home') 를 urlpatterns에 추가해주는데, 그 의미는 1st argument와 같은 pattern이 왔을 때 2nd argument의 함수를 실행하고 싶다는 것이고, 이 path 전체의 이름을 'home'이라고 하겠다는 것이다. 보통 이 url의 name은 함수와 동일한 이름으로 짓는 것이 convention이다. 이 때, url은 /로 마쳐준다. 
 
-## MTV 패턴
+### MTV 패턴
 
 - Model: DB, Template: show html, View: function (controller)
 - MVC에선 Model: DB, View: show html, Cotnroller: function. MTV는 MVC를 차용. 
@@ -34,7 +36,9 @@
 - views.py에서 결과값을 return하여 보낼 떄 render 내에서 3번째 파라미터로 방금 받은 parmas 같은 값을 딕셔너리로 매칭시켜 보낼 수 있다. {'spam': foo} 처럼. 이걸 html template에서 {{spam}} 으로 부를 수 있다. 
 - 참고: app을 지우고 싶을 땐 어떻게 할까? 그냥 directory를 지우고 그 app이랑 연관된 코드들을 수동으로 지워준다. (https://stackoverflow.com/questions/11382734/how-to-delete-an-app-from-a-django-project)
 
-## model & admin 이론
+## model & admin
+
+### model & admin 이론
 
 - 포인트1: Model의 DB를 Views로 어떻게 옮길 것인가? 
 - 포인트2: Django Admin은 어떻게 이용하는가? 
@@ -43,7 +47,7 @@
 - $ python manage.py makemigrations 마이그레이션 파일을 만들고 / $ python manage.py migrate 만든 models.py를 적용시킴
 - admin 계정 만들기: $ python manage.py createsuperuser 이후 admin.py에 데이터 등록
 
-## model & admin 실습 
+### model & admin 실습 (1)
 
 - blog app을 새로 만들어 시작한다. INSTALLED_APPS에 추가해준다. 
 - 우선 models.py에서 모델 class를 만든다. models.Model에서 상속을 받도록 한다. 
@@ -59,4 +63,30 @@
 - Query set method는 [모델.쿼리셋objects.메소드] 의 형식을 가진다. .all, .count, .first, .last 등 여러 가지가 있다. 추후 정리한다. 
 - 중요 참고: settings.py의 INSTALLED_APP의 순서는 중요하다. 이를 순서대로 읽어 처리하기 때문에 홈페이지에 올 것을 가장 먼저 적어주는 것이 좋다. 또한 namespacing도 중요하다. 같은 'home'이라고 naming을 하면 추후 잘못 reference 되는 등의 문제가 생길 수 있다. 따라서 최대한 explicit하게 namespacing을 하여 표현해 주는 것이 중요하다. 
 - VSCode Django extension 참고: Django extension (by Baptiste Darthenay)를 설치하면 {% %} template tag 내의 python syntax highlighting이 가능하다. 하지만 이를 설치하면 /templates/*.html들은 django-html으로 분류되어 emmet(자동완성)이 꺼지게 되는데, 이를 켜주기 위해선 VSCode의 settings.json (globally 적용되는 User settings) 에서 "emmet.includeLanguages": {"django-html": "html"}, 를 추가해줘야 한다. (VSCode extension 페이지 참조. https://marketplace.visualstudio.com/items?itemName=batisteo.vscode-django)
-- 
+
+### bootstrap 보강
+
+- Bootstrap은 CDN을 쓴다. (<head></head> 내에 포함 )
+- https://getbootstrap.com/
+- https://startbootstrap.com/
+
+### model & admin 실습 (2)
+
+- 1. pk --> Primary Key. x 번째 블로그 객체를 넘버링하기 위해 필요
+- 2. path Converter --> /blog/1 이런 식으로 여러 객체를 다루는 계층적인 url path를 자동생성할 때 유리. /<타입:변수이름> 과 같은 형식. views.py에서도 request외의 인자로 전달해줘야 한다. 
+- 3. get_object_or_404 --> 404. get_object_or_404(어떤클래스, 검색조건) 검색조건에 pk 사용 가능. views에서 사용하기 전에 render와 같이 import 해줘야 함. 
+- 우선 views.py에서 def detail(request, blog_id) 를 통해 detail.html에 블로그 내용 객체를 render를 통해 보내준다.
+- url 상에서 이 동작을 수행하기 위해 path를 pk를 이용하여 적어준다. 
+- detail.html에서 views에서 받은 객체를 통해 렌더한다. 
+- home.html에서 a태그를 통해 path converter로 이동시키려면, blog.id 를 통해 블로그 객체의 번호를 표시해준다. {% url 'detail' blog.id %}
+- 이제 admin이 아닌 home에서 새 글을 작성하면 글이 띄워지도록 해보자. 
+- home.html에서 우선 bootstrap CDN을 넣어준 후 버튼을 만들어 new.html로 갈 수 있는 글쓰기 버튼을 만든다. 
+- views.py에서 def new(request) 를 통해 new.html을 render 해준다. 
+- /templates 에 new.html을 만들고 <form action={% url 'create' %}> 이하 코드를 작성한다. 여기서 {%%}는 ""로 감싸줘도 되고 안감싸줘도 둘 다 작동한다.
+- views.py에서 def create(request) 를 통해 새 글 작성 함수를 써준다. DB에 저장될 빈 클래스 인스턴스 blog=Blog()를 만들고 request를 통해 form에서 저장되어 날라온 title과 body를 .GET['foo'] 해준다. 그리고 .save() 해준다. 그리고 글을 저장했으니 방금 쓴 글 화면으로 redirect 해준다. (redirect도 import 해줘야 한다.)
+- 간단히 말해 redirect는 render과 달리 프로젝트 외의 외부 url로도 연결 가능. 쓰임이 다르다. 
+
+## 여러 파일 다뤄보기
+
+### 포트폴리오 만들기
+
