@@ -88,5 +88,49 @@
 
 ## 여러 파일 다뤄보기
 
-### 포트폴리오 만들기
+### 포트폴리오 만들기 (static file 다루기)
 
+- static file vs dynamic file 
+- static file: 미리 서버에 저장되어 있어 서버에 저장된 그대로를 서비스해주는 파일
+    - "static" 개발자들이 미리 준비해 둔 파일
+    - "media" 웹 서비스 이용자들이 업로드하는 파일
+- dynamic file: 서버의 데이터들이 어느 정도 가공된 다음 서비스 되는 파일. (상황에 따라 받는 내용이 달라질 수 있음.)
+- Static file의 처리과정: 
+    - 1. static file의 위치를 찾고: app폴더 안에 static 폴더 만들고 그 안에 파일 넣기. 
+    - 2. static file들을 한 곳에 모은다. settings.py에서 static 폴더 위치 지정하고, $ python manage.py collectstatic으로 한 곳에 모으기. 그리고 html에서 static파일 사용을 선언. 
+- settings.py에서 앱 등록, templates 폴더 생성, html 페이지 생성, views.py에서 render 함수 만들고 urls.py에서 portfolio/ path 설정 등은 알아서 해준다. 
+- 만든 app 폴더 안에 static 폴더를 만든다. 
+- 이제 settings.py에서 STATICFILES_DIRS와 STATIC_ROOT 를 선언해준다. 
+- STATICFILES_DIRS는 path를 join하는 것이기 때문에 namespacing하듯 상위폴더부터 순서대로 static이 들어있는 곳을 적어준다. static 파일들이 현재 어디에 있는지 쓰는 것. 
+- STATIC_ROOT는 static파일들이 어디로 모일지 써주는 것이다. 경로를 보면 base directory의 최상위 static 폴더에 모여야 한다는 것을 알 수 있다. 이는 따로 만들어줄 필요 없이 collectstatic 명령 시 디렉토리가 생성된다. 
+- 이제 $ python manage.py collectstatic을 해준다. 
+- html에는 staticfiles 사용 선언을 해준다. {% load staticfiles %}
+- static파일을 <img> 에 넣어 사용하려면 <img src="{% static 'foo.jpg' %}"> 와 같이 하면 된다. 
+
+### 포트폴리오 만들기 (media file 다루기)
+
+- static 파일은 외부와의 통신이 없는데, media 파일은 외부와의 통신이 있다. 사용자가 올리는 파일이니까. 
+- settings에서 MEDIA_URL과 MEDIA_ROOT를 설정해줘야 한다. 
+- MEDIA_URL은 media파일이 어떤 url을 타고 가야 하는지, MEDIA_ROOT는 STATIC_ROOT처럼 어디로 모을 것인지를 설정한다. 
+- MEDIA_ROOT는 base directory 다음의 /media로, MEDIA_URL은 /media/ 로 해준다. 
+- urls.py에서 django.conf에서 settings와 static을 import 해줘야 한다. 
+- urls.py에서 url을 추가할 때도 list에 병렬적으로 더해 path를 추가해준다. 
+- 이제 사용자가 url을 타고 들어오는 것 까지는 완성이 되었으니 DB를 추가해준다. models.py에서 .ImageField를 가진 Portfolio model을 만든다. 이 때, upload_to는 'images/' 로 해준다. 이는 media directory 하위로 가게 된다. 
+- 이미지를 데이터베이스에 넣고 싶을 땐 pillow 라이브러리를 추가적으로 설치 해주어야 한다. 파이썬으로 이미지를 효율적으로 처리할 수 있게 해주는 라이브러리. 원래는 pil(python image library) 였다. 
+- admin.py에서 Portfolio 를 import하고 등록해준다. 
+- portfolio을 모든 객체를 띄우도록 views.py를 수정한다. 
+- 이제 html에서 이를 써주는데, 여러 장을 순서대로 출력할 것이기 때문에 for문으로 반복시키고 <img src="{{ portfolio.image.url }}">로 써준다. .url을 붙여줘야 한다는 사실에 주의하자. 
+
+
+### template 상속
+
+- redundant한 html header, template 상속으로 중복을 줄이자. base.html을 써야 한다. (특히 navbar는 redundant해지면 링크도 다 따로 설정해줘야 해서 매우 비효율적이 된다.)
+- 프로젝트 폴더에 templates 폴더 생성 후 안에 base.html을 만들고 여기에 공통코드를 넣고 settings.py에 base.html 위치를 알려주고 상속받는 html들에서 겹치는 내용들을 삭제하고 base.html을 불러오면 된다. 
+- base.html에서 공통된 부분을 작성해주고, (bootstrap CDN, navbar 등)  body 부분엔 template tag의 block을 이용해 어떤 컨텐츠 블록이 올 것인지 정해준다. {% block contents %} 와 같이 해주면 되고, contents 대신 title 등이 와도 된다. 
+- 이제 자식 html들에 가서 공통된 부분을 지워주고 {% extends 'base.html' %}을 통해 공통 html을 받아온다. 
+
+### url 관리
+
+- 전체 url의 관리를 위해 각 app 관련 url을 각 app에 넣는 것이 효율적일 것이다. 모든 것을 settings.py에 넣기에는 불편하다. 
+- app폴더 안에 urls.py를 만들고 똑같이 urlpatterns를 선언한다. (필수적인 것들 import 해야.) 그리고 blog/ 를 제외한 경로를 그대로 적는다. (이미 app 안에 있으니까.)
+- 그리고 settings.py에서도 ...import path, include 로 include를 추가 import 해주고 기존 blog/ url 대신 path('blog/', include('blog.urls')) 로 대체해준다. 
