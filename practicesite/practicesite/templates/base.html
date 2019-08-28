@@ -15,9 +15,16 @@
 
 </head>
 <body>
-    <br>
-    This line is to indicate that it extends base template successfully.
-    <br>
+    <a href="{% url 'signup' %}">Sign up</a><br>
+    Login <br> 
+    <form action="{% url 'login' %}" method='POST'>
+        {% csrf_token %}
+        User name: <input type="text" name='username'><br>
+        Password: <input type="password" name='password'><br>
+        <input type="submit" value='Submit!'>
+    </form>
+    <a href="{% url 'logout' %}">Log out</a>
+
     {% block contents %}
 
     {% endblock %}

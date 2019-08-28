@@ -134,3 +134,26 @@
 - 전체 url의 관리를 위해 각 app 관련 url을 각 app에 넣는 것이 효율적일 것이다. 모든 것을 settings.py에 넣기에는 불편하다. 
 - app폴더 안에 urls.py를 만들고 똑같이 urlpatterns를 선언한다. (필수적인 것들 import 해야.) 그리고 blog/ 를 제외한 경로를 그대로 적는다. (이미 app 안에 있으니까.)
 - 그리고 settings.py에서도 ...import path, include 로 include를 추가 import 해주고 기존 blog/ url 대신 path('blog/', include('blog.urls')) 로 대체해준다. 
+
+## 계정정보 다루기
+
+### 회원가입 로그인 로그아웃 함수 만들기 
+
+- views.py에서 함수로 처리한다. ...import User, ...import auth 를 해준다. 
+- User는 마치 model 처럼 새로운 데이터를 생성하는 것. 
+- auth는 로그인, 로그아웃을 담당한다. 
+
+### 참고: HTTP method
+
+- 정보를 주고받는 방식, 왜 method를 나누는 것인가? 
+- form action 으로 그냥 url을 보냈을 때 따로 method를 지정하지 않았으니 GET을 쓴 것이다. 그리고 request.GET['foo'] 를 통해 데이터를 가져온 것이다. 
+- 여러 방식이 있다. 
+    - 데이터 조회: GET
+    - 데이터 생성: POST
+    - 데이터 수정: PUT
+    - 데이터 삭제: DELETE
+
+### 실습
+
+- blog의 views.py에서 User와 auth를 import하고 signup, login 함수를 만든다. 
+- login/signup 페이지에서는 form에서 method='POST'로 전달하고 이하 {% csrf_token %} 를 적어 보안상 csrf를 대비해줘야 한다. 
