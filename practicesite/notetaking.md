@@ -216,3 +216,31 @@
 - urls.py에서 views.py에서 정의할 새로운 blogpost 함수를 실행시키는 url을 만든다. 
 - views.py에서 blogpost 함수를 만든다. 
 - 이제 new.html가서 만든 form을 활용하여 페이지를 만들어준다. 
+
+## 소셜 로그인/API
+
+### 소셜 로그인 (1)
+
+- 기능 위주로 수업을 한다. 
+- Django에서 social login 기능은 allauth가 꽤 보편적이다. 
+- 기존 방식은 db.sqlite3를 썼지만, 이는 development에서만 임의적으로 그렇게 하는 것이고 db는 원래 매우 중요하기 때문에 따로 관리를 해줘야 한다. 
+- 전자는 db와 db를 다루는 로직이 한 공간에 있는 것이고 후자는 db와 db를 다루는 로직이 다른 공간에 존재하게 되는 것이다. 
+- 기존엔 views.py에 login, signup, logout을 구현했었다. 이는 사용자에게 request를 받아서 우리가 처리하는 방식이었고, social 로그인은 구글 등의 서비스와 request, token 등을 주고받으며 authenticate하는 방식이다. 
+- 기존의 방법을 가져다 쓰는 것이니 더 안정적일 것이다. 
+- session 상태에 따른 처리도 가능하다. 
+
+### 소셜 로그인 (2) 
+
+- 새로 프로젝트를 시작하고 login 앱을 만든다. 
+- django-allauth 라이브러리를 설치한다. 
+- settings.py의 INSTALLED_APPS에서 django.contrib.sites 를 추가해준다. 순서는 크게 상관 없을 수도 있으나, 일단 auth아래에 설치해준다. 
+- 또 거기에 'allauth', 'allauth.account', 'allauth.socialaccount'를 추가해준다. 그 아래에 또 providers 들을 써준다. 
+- 그리고 settings.py 하단에 AUTHENTICATION_BACKENDS 등의 코드를 추가해준다. 
+- 이제 urls.py에서 'accounts/' 관련 경로를 include 시켜준다. 이는 allauth.urls 에 들어있는 여러 가지 signup, login, 등등의 로그인 경로들을 가져다 쓰는 것이다. 
+- 이제 migrate를 한 번 해준다. 
+- /admin에서 확인하면 다양한 User 관련 모델들이 생성되어 있다. Sites에 들어가 로컬 서버 주소인 127.0.0.1:8000으로 바꿔준다. 
+- Social applications에서 add social application에 들어가 Google을 추가해준다. 
+- Cliend ID와 Secret Key를 Google에서 받아야 한다. Google Dev console에 들어가 project를 만들고 OAuth client id를 선택한다. client id와 secret key가 제공되면 이를 admin에 들어가 입력해준다. 
+- 이제 home.html에 들어가 {% load socialaccount %} 를 해주고 이하 내용을 작성해준다. 이를 통해 session을 손쉽게 관리할 수 있다. (by .is_authenticated)
+- accounts/signup url을 만든적이 없음에도 allauth에서 제공해주기에 url이 작동한다. 
+- login page로 가기 위해선 {% provider_login_url 'provider이름' %} 을 사용해야 해당 provider에게 연결됨을 기억하자. 

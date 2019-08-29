@@ -59,7 +59,7 @@ def create(request):
     return redirect('/blog/' + str(blog.id))
 
 def blogpost(request):
-    if request.method = 'POST':
+    if request.method == 'POST':
         form = BlogPost(request.POST)
         if form.is_valid():
             post = form.save(commit=False)
