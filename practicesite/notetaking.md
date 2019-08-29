@@ -135,7 +135,7 @@
 - app폴더 안에 urls.py를 만들고 똑같이 urlpatterns를 선언한다. (필수적인 것들 import 해야.) 그리고 blog/ 를 제외한 경로를 그대로 적는다. (이미 app 안에 있으니까.)
 - 그리고 settings.py에서도 ...import path, include 로 include를 추가 import 해주고 기존 blog/ url 대신 path('blog/', include('blog.urls')) 로 대체해준다. 
 
-## 계정정보 다루기
+## 계정정보 다루기 / pagination
 
 ### 회원가입 로그인 로그아웃 함수 만들기 
 
@@ -157,3 +157,26 @@
 
 - blog의 views.py에서 User와 auth를 import하고 signup, login 함수를 만든다. 
 - login/signup 페이지에서는 form에서 method='POST'로 전달하고 이하 {% csrf_token %} 를 적어 보안상 csrf를 대비해줘야 한다. 
+
+### pagination (1)
+
+- Django에서 제공하는 paginator를 import하고 
+- views.py 에서 어떤 객체를 한 페이지 당 몇 개씩 pagination 시킬 것인지 결정하고 (by paginator) 특정 페이지를 가져온다. (by .get_page(n)) ?page=2 이런 식으로. 그리고 마지막으로 html에서 페이지 객체의 매소드 함수 및 template language로 표시.  
+- Paginator Class와 Page Class는 다르다. paginator는 어떤 객체를 몇 페이지씩 자를 것인지 정하는 것이고, Page 객체는 각 페이지를 말한다. 
+- page 객체의 메소드 함수로는 page.count(), page.num_pages(), page.page(n), page.page_range(), page.get_page(n), page.has_next(), page.has_previous(), page.previous_page_number() 등등이 있다. 
+- 사용자가 request하는 페이지 번호는 어떻게 알 것인가? page = request.GET.get('page')를 통해 알 수 있다. 여기서 .get()은 dictionary에서 key를 인자로 주면 value 반환하는 함수이다. 
+- request.GET은 사실 dictionary이다. www.google.com?fookey=3&barkey=hello 라는 url이 request되면 request.GET = {'fookey':3, 'barkey':"hello"} 이다. Pagination에서는 {'page':3} 와 같이 받을 것이다. 
+- 즉, request.GET.get('page')에는 원하는 페이지의 번호가 담긴다. 이제 paginator.get_page()를 통해 해당 페이지를 실제로 불러온다. 
+
+### pagination (2)
+
+- views.py에서 paginator를 import 해준다. 
+- def home 에서 blog를 paginator에 담아준다. page에는 'page'를 key로 value를 반환해 request된 페이지 번호를 저장한다. posts에는 이미 선언한 전체 객체가 들어있는 paginator에서 해당 page를 입력받아 객체들을 불러온다. 
+- 그리고 return render 시에 해당 값을 context로 같이 보내준다. 
+- 이제 home.html에서 blog.all이 아닌 posts에서 돌도록 html을 수정해준다. 즉, request로 받은 어떤 page의 글만 load되고 표시가 되는 것이다. 
+- 이제 pagination buttons를 생성한다. \
+
+### 참고: faker
+
+- 가짜 데이터를 생성해주는 Faker. 많은 데이터가 있는 상황을 염두해뒀을 때 테스트 할 수 있게 해줌. 
+- 

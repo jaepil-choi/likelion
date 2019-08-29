@@ -3,6 +3,7 @@ from django.utils import timezone
 from .models import Blog
 from django.contrib.auth.models import User
 from django.contrib import auth
+from django.core.paginator import Paginator
 
 # Create your views here.
 
@@ -23,7 +24,7 @@ def login(request):
             auth.login(request, user)
             return redirect('home')
         else:
-            return render(request, 'home.html', {'error': "User name or password is incorrect."})
+            return render(request, 'home.html', {'error':"User name or password is incorrect."})
     return render(request, 'signup.html')
 
 def logout(request):
@@ -34,11 +35,15 @@ def logout(request):
 
 def home(request):
     blogs = Blog.objects
-    return render(request, 'home.html', {'blogs': blogs})
+    blog_list = blogs.all()
+    paginator = Paginator(blog_list, 3)
+    page = request.GET.get('page')
+    posts = paginator.get_page(page)
+    return render(request, 'home.html', {'blogs':blogs, 'posts':posts})
 
 def detail(request, blog_id):
     blog_detail = get_object_or_404(Blog, pk=blog_id)
-    return render(request, 'detail.html', {'blog': blog_detail})
+    return render(request, 'detail.html', {'blog':blog_detail})
 
 def new(request):
     return render(request, 'new.html')
