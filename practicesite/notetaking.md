@@ -185,3 +185,34 @@
 - default는 영어고, 한국어로 local을 변경 가능하다. Faker('ko_KR')
 - 가짜 데이터를 저장하기 필요한 것이 seed파일이다. Faker객체.seed(seed번호) 방식으로 생성 가능하다. 
 - 이를 이용하여 seed DB를 만들 수 있을 것이다. views에서 for문을 써 만들어보자. 
+
+## Form 이론
+
+### Form (1)
+
+- html로 일일이 form tag를 만드는 것은 힘들다. 또한 유효성 검사를 매번 처리하는 것도 힘들다. 한계가 있다. 
+- Django에서 기본 제공하는 form.py를 만들어 해결한다. models.py가 DB에 대응된다면, form.py는 templates에 응된다. 
+- 이는 모델의 기반으로 한 입력공간을 만들거나 임의의 입력 공간을 만드는 것 둘 다 가능하다. 
+    - 모델 기반: ...import forms.ModelForm
+    - 임의의 공간: ...import forms.Form
+- 참고: Meta class https://stackoverflow.com/a/6581949/8491363
+- Form을 class로 만들고, 그 class 안에 class Meta로 어떤 모델을 기반으로 한 입력공간인지, 그 모델 중 어떤 항목을 입력받을 것인지 적어줘야 한다. 
+- 임의의 입력 공간은 더 간단하다. 그냥 만드는 form의 class attributes로 img, text, time 등을 집어넣어 주면 된다.
+- 이 form.py에서 myForm class를 만들었으면 이를 views.py에서 import 해준다. def create 할 때 아래 두 가지를 수행할 수 있도록 한다. 
+    - 1. 처음 new.html에 들어갔을 때 빈 입력공간을 띄우고 --> GET
+    - 2. 이용자가 입력하면 그 입력값들을 처리하는 역할 --> POST
+- 둘 중 어떤 케이스인지 구분하기 위해선 GET인지 POST인지 if문으로 판별하면 된다. 
+- 입력받을 때도 모델의 일부항목에 대해서만 직접 입력받고 나머지 항목은 자동으로 채워지게 (작성일시 등) 하고싶을 수도 있다. 
+- 또한 입력값을 처리하는 POST 방식일 때 .is_valid 를 사용하여 적절한 값이 입력되었는지 확인하는 절차를 거친다. 이 is_valid는 적절한 값을 입력하라고 알려주는 기능도 가진다. 그리고 저장하기 전 model 객체에 접근해 date 변수를 써주는 식으로 저장을 완료한다. 
+- form.save(commit=False)를 통해 바로 DB에 저장하지 않고 그냥 객체를 반환받는 것이 가능하다. 
+- form은 {{form}} 으로 띄울 수 있으나, 근야 쭈르륵 나오므로 template tag로 보내기 전에 안의 내용을 어떤 태그로 감싸서 보낼지 미리 결정해서 보내야 한다. (Django의 기능)
+- {{form.as_table}}, {{form.as_p}}, {{form.as_ul}} 등이 있다. 
+
+### Form (2)
+
+- form을 만드려는 app 폴더 속에 form.py를 만든다. 
+- Model 기반 form은 forms.ModelForm을 상속받고 free form은 forms.Form을 상속받아 form class를 만든다. 
+- 어떤 model을 기반으로 할 것인지, 어떤 field를 쓸 것인지 적어준다. 
+- urls.py에서 views.py에서 정의할 새로운 blogpost 함수를 실행시키는 url을 만든다. 
+- views.py에서 blogpost 함수를 만든다. 
+- 이제 new.html가서 만든 form을 활용하여 페이지를 만들어준다. 
