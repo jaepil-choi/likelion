@@ -244,3 +244,27 @@
 - 이제 home.html에 들어가 {% load socialaccount %} 를 해주고 이하 내용을 작성해준다. 이를 통해 session을 손쉽게 관리할 수 있다. (by .is_authenticated)
 - accounts/signup url을 만든적이 없음에도 allauth에서 제공해주기에 url이 작동한다. 
 - login page로 가기 위해선 {% provider_login_url 'provider이름' %} 을 사용해야 해당 provider에게 연결됨을 기억하자. 
+
+### API 
+
+- Application Programming Interface. 우리가 만든 서비스에서 외부의 기능을 사용하도록 제어할 수 있는 연결통로 (인터페이스)
+- Naver의 ncloud.com 에서 지도를 가져올 수 있다. 
+
+### 썸네일 만들기 (실습 생략)
+
+- django-imagekit 썸네일 라이브러리를 썼을 때의 장점:
+    - 1. 썸네일 파일 지정 용이
+    - 2. 파일 용량 관리. (확장자, 압축방식, 중복사용 방지)
+    - 3. 파일 분류에 효율적. (thumbnail은 thumbnail directory에, 원본은 원본 디렉토리에.)
+- 이미지 static 사용하던 방법과 똑같이 이미지를 넣는다. 
+- pip install 후 INSTALLED_APPS에 'imagekit'을 등록해준다. 
+- 이후 models.py에서 image를 넣기 위한 class를 만들 때 아래 두 개를 import 해준다. 
+    - from imagekit.models import ImageSpecField (썸네일을 만듦)
+    - from imagekit.processors import ResizeToFill (크기조정 용이하게 해줌)
+- 기본적인 ImageField를 만든 다음 다음과 같이 추가해준다. 
+    - image_thumbnail = ImageSpecField(source='image', processors=[ResizeToFill(120, 60)])
+    - 여기서 source는 어떤 것을 썸네일 만들 소스로 삼느냐인데, 기존에 입력한 image = models.ImageField(upload_to='blogimg')가 이에 해당한다. ResizeToFill은 썸네일의 크기를 정한다. 
+    - ImageSpecField는 format='JPEG', options=압축 퀄리티 등등을 지정해 줄 수 있다. 
+
+- 이제 home.html에 썸네일을 띄우기만 하면 된다. template variable을 통해 띄운다. 
+- <img src='{{ blog.image_thumbnail.url }}'> 와 같이 넣는다. 

@@ -10,6 +10,7 @@ pylint = "*"
 django = "*"
 pillow = "*"
 django-allauth = "*"
+django-imagekit = "*"
 
 [requires]
 python_version = "3.6"
