@@ -268,3 +268,40 @@
 
 - 이제 home.html에 썸네일을 띄우기만 하면 된다. template variable을 통해 띄운다. 
 - <img src='{{ blog.image_thumbnail.url }}'> 와 같이 넣는다. 
+
+## APP 재사용
+
+### APP 재사용 (1)
+
+- account, comment 같은 것은 다른 프로젝트에서도 재사용하게되는 app들이다. 
+- 이를 packaging하여 쓰는 방법을 알아보자. pip install 하듯, package인 것이다. 
+- app의 재사용 == app의 packaging. 앱을 묶고, 푸는 것이다. 푸는 것은 pip install 로 하는 것이니 app을 묶는 것만 배우면 된다. 
+- 파일을 4개 만들어야 한다. 
+    - 1. 패키지의 소개/사용설명서/기능명세서 README.rst
+    - 2. 라이센스 LICENSE
+    - 3. 설치의 방법 과정 setup.py
+    - 4. 파이썬 파일이 아닌 파일들 명시 MANIFEST.in
+
+### APP 재사용 (2)
+
+- 프로젝트 외부에 새로운 패키징 폴더를 만들고, 재사용할 앱을 이동시킨다. 그리고 위에서 설명한 4개의 파일을 만든다. 
+- 장고 공식문제에서 복붙을 한다. README에선 한글을 쓰지 않는 것이 좋다. 
+- 라이센스는 BSD 등 다양한 것을 가져다 쓴다. Django tutorial의 범위를 벗어나는 부분인데, 라이센스가 없는 패키지는 쓸모 없는 패키지라는 것을 기억하자. 
+- MANIFEST.in은 python 이외의 다른 것을 모두 적어놓는데, recursive-include login/templates * 그리고 recursive-include login/migrations * 등을 적어놓으면 재귀적으로 include하고 각각은 include LICENSE 와 같이 적는다. 
+- 이제 모든 것이 준비되었으니 해당 디렉토리로 이동하여 $ python setup.py sdist 를 통해 짐을 싼다. 그러면 압축파일 하나가 생성된다. 이제 이 패키지를 pip install 해주면 앱의 재사용이 가능하다. 
+- 기존 프로젝트는 현재 앱이 빠져있으니 에러가 날 것이다. 따라서 방금 만든 패키지를 장고에서 다시 설치해주도록 한다. 패키징 한 폴더 안으로 들어가 pip install dist/패키지압축파일명 을 해주면 앱이 설치된다. 
+- 그렇게 하면 프로젝트 내에 앱 폴더가 없어도 앱 패키지가 설치가 되었기에 다시 정상 작동한다. 
+
+## PostgreSQL
+
+- 디폴트 sqlite3는 스케일이 커지면 다른 db로 대체해야 한다. 
+- 지금껏 sqlite를 어떻게 사용했는지, 앞으로 PostgreSQL을 어떻게 사용할지 알아보자. 
+- 장고 프로젝트는 어떤 db를 가리키고 연결되어 있는 것이다. 이는 settings.py에 명시되어 있다. (가리킴)
+- 다른 DB와 연결까지 하기 위해선 우선 DB를 설치하고, 가리키고, migrate로 연결해줘야 한다. 
+- PostgreSQL을 설치 후 pgAdmin을 킨다. Database > create에서 db를 생성한다. 
+- blog의 settings.py에서 DATABASES를 수정해준다. 이 때 PASSWORD는 진짜 PostgreSQL에서 사용한 유저의 password를 적어줘야 한다. 
+- 이제 migrate를 시킨다. 나의 경우는 psycopg2 module이 없다고 에러가 나서
+
+## AWS 배포
+
+- Will visit later
