@@ -179,4 +179,9 @@
 ### 참고: faker
 
 - 가짜 데이터를 생성해주는 Faker. 많은 데이터가 있는 상황을 염두해뒀을 때 테스트 할 수 있게 해줌. 
-- 
+- $ pip install Faker / from faker import Faker
+- Faker()의 메소드를 통해 어떤 종류의 가짜 데이터를 뽑아낼 지 결정할 수 있다. 
+- .name() .address() .text() .state() .sentence() .random_number() 등. 
+- default는 영어고, 한국어로 local을 변경 가능하다. Faker('ko_KR')
+- 가짜 데이터를 저장하기 필요한 것이 seed파일이다. Faker객체.seed(seed번호) 방식으로 생성 가능하다. 
+- 이를 이용하여 seed DB를 만들 수 있을 것이다. views에서 for문을 써 만들어보자. 
