@@ -320,9 +320,9 @@
 - 새로 functioncrud와 classcrud 앱을 만든다. 
 - 이 때, templates 안에 namespacing을 통해 정확하게 알 수 있도록 각 앱의 이름으로 다시 한 번 분류해준다. 
 - create가 new의 역할도 한다는 것을 알아두자. if문으로 method를 구분하여 new를 띄울지, create 기능을 수행할지 정하게 된다. 
-- C, index는 pk가 필요 없지만 U D는 pk가 필요하다. 따라서 삭제 링크를 만들 때도 blog.id를 포함하여 보내줄 수 있도록 해야 한다. 
+- C R(list)는 pk가 필요 없지만 R(detail) U D는 pk가 필요하다. 따라서 삭제 링크를 만들 때도 blog.id를 포함하여 보내줄 수 있도록 해야 한다. 
 
-### 클래스형 view CRUD 
+### 클래스형 view CRUD (1)
 
 - Generic View - RESTful API in Django
 - 왜 class view를 쓰는지, 함수형 view와 차이는 뭔지 알아본다. 
@@ -331,3 +331,19 @@
 - Class Based View(generic view)에선 대신 '약속된' 것이 많다. (conventions) 
 - FBV도 실무에서 많이 쓰긴 한다. 무조건 CBV > FBV는 아니다. 
 
+### 클래스형 view CRUD (2)
+
+- views를 class를 사용하여 작성해 준다. 장고에서 generic으로 구현되어있는 django.views.generic 에서 가져다 쓰는 것이 중요하다. 
+- ListView는 model = 담을 모델객체 만 선택해주면 알아서 나머지를 list 하게 해준다. 
+- CreateView는 model = 모델객체 선택하고 입력할 fields만 선택해준다. 그리고 reverse_lazy() 를 이용해 list로 돌아간다. 참고로 .get_absolute_url(), .reverse() 도 있으니 추후 활용하자. 
+- UpdateView 는 위와 유사하다. 
+- 하지만 CBV에는 약속된 규약들이 있다. 바로 각 class view에는 이에 필수적인 html이 필요한 것이다. 
+    - ListView는 리스트를 담은 html template을 --> 소문자모델_list.html
+    - CreateView는 form을 가진 html을 --> 소문자모델_form.html
+    - DetailView는 상세페이지를 담은 html을 --> 소문자모델_detail.html
+    - UpdateView는 CreateView와 마찬가지로 form을 가지 html을  --> 소문자모델_form.html
+    - DeleteView는 삭제를 확인하는 html을 --> 소문자모델_confirm_delete.html
+- html에서도 다르게 불러준다. model = ClassBlog와 같이 모델만 지정해줬기 때문에 object_list 라는 context로 보내서 {% for blog in object_list %} 와 같이 반복문을 돌리면 해당 모델로 생성된 모든 객체를 순회할 수 있다. 
+- _detail.html에서도 해당 pk값을 가진 모델 객체는 단순히 object 로 호출이 가능하다. object.title 와 같이 호출 가능하다. 
+- 만약 default html이 아닌 custom html을 쓰고 싶다면 ListView에서 template_name = 하고 override를 해줘야 한다. 
+- 서로 다른 객체 목록은 어떻게 구분하는가? obejct / object_list 하나로 통일되어 있으니. 따라서 default를 customize 해줘야 할 수 있다. 이 경우 context_object_name = 'foo' 로 바꿔준다. 
