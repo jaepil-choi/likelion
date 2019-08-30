@@ -212,6 +212,7 @@
 
 - form을 만드려는 app 폴더 속에 form.py를 만든다. 
 - Model 기반 form은 forms.ModelForm을 상속받고 free form은 forms.Form을 상속받아 form class를 만든다. 
+- 이 떄, model의 모든 field를 입력받고 싶으면 fields = '__all__' 를 써주면 된다. 하지만 timezone 같은 것은 직접 입력받지 말아야 하기 때문에 잘 써야 한다. 
 - 어떤 model을 기반으로 할 것인지, 어떤 field를 쓸 것인지 적어준다. 
 - urls.py에서 views.py에서 정의할 새로운 blogpost 함수를 실행시키는 url을 만든다. 
 - views.py에서 blogpost 함수를 만든다. 
@@ -305,3 +306,28 @@
 ## AWS 배포
 
 - Will visit later
+
+## ORM & CRUD
+
+### Object Relational Mapping
+
+- (클래스)객체로 관계형 DB를 다룬다. 
+- 주로 데이터를 CRUD로 다룬다. 
+
+### 함수형 view CRUD
+
+- 모든 기본 세팅을 해준다. 
+- 새로 functioncrud와 classcrud 앱을 만든다. 
+- 이 때, templates 안에 namespacing을 통해 정확하게 알 수 있도록 각 앱의 이름으로 다시 한 번 분류해준다. 
+- create가 new의 역할도 한다는 것을 알아두자. if문으로 method를 구분하여 new를 띄울지, create 기능을 수행할지 정하게 된다. 
+- C, index는 pk가 필요 없지만 U D는 pk가 필요하다. 따라서 삭제 링크를 만들 때도 blog.id를 포함하여 보내줄 수 있도록 해야 한다. 
+
+### 클래스형 view CRUD 
+
+- Generic View - RESTful API in Django
+- 왜 class view를 쓰는지, 함수형 view와 차이는 뭔지 알아본다. 
+- function과 class는 모두 callable object이다. views.py는 사실 호출가능한 객체로 정의하는 것이었던 것이다. 
+- class는 상속이 있고 function은 상속이 없다. 
+- Class Based View(generic view)에선 대신 '약속된' 것이 많다. (conventions) 
+- FBV도 실무에서 많이 쓰긴 한다. 무조건 CBV > FBV는 아니다. 
+

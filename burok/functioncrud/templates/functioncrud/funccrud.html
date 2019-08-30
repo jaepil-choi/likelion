@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+</head>
+<body>
+    This is function crud READ page. 
+
+    <a href="{% url 'newblog' %}">글쓰기</a>
+
+    {% for blog in blogs %}
+        <h1>{{ blog.title }}</h1>
+        <br>
+        <h4>{{ blog.pub_date }}</h4>
+        <br>
+        <p>{{ blog.body }}</p>
+        <a href="{% url 'update' blog.id%}">수정</a>
+        <a href="{% url 'delete' blog.id %}">삭제</a>
+        <hr>
+    {% endfor %}
+</body>
+</html>
