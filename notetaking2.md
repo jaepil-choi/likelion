@@ -72,3 +72,34 @@
 - 하지만 Form은 HTML Form을 생성해주는 반면 Serializer은 JSON 문자열을 생성한다. 
 - 즉, 둘은 전송가능 형식을 어떤 것으로 만드느냐의 차이일 뿐, 그 전후의 Field 생성이나 유효성 검사는 똑같이 한다. 
 
+### 실습
+
+- pip install djangorestframework 를 한다. 
+- 프로젝트 시작 후 settings.py의 INSTALLED_APPS에 'rest_framework'를 등록해준다. 
+- 생성한 앱도 등록해준다. 일단 post 앱이면 'post'만 추가하도록 한다. 
+- 프로젝트 폴더의 urlpatterns에 include를 사용해 post의 urls를 등록해준다. 
+- models.py에서 간단한 모델을 만들어준다. 
+- makemigrations, migrate 해준다. 
+- post app 폴더 내에 serializer.py를 만들고 모델(Post)과 rest_framework의 serializer를 불러온다. 
+- 그리고 form에서 만들었던 것 처럼 class를 만든다. 
+- 이제 views.py를 작성한다. 이 때, 만들었던 Post와 PostSerializer와 함께 rest_framework의 viewsets를 import 해주도록 한다. 
+- PostSerializer를 사용해 간단히 PostViewSet class를 작성한다. 이는 REST API의 CRUD를 담당하는 것이라 생각하면 된다.   
+- 이제 post의 urls.py에서 DefaultRouter를 import 해준다. 만들어놓은 views도 import 해준다. 
+- Django rest framework에선 router를 통해 url을 처리한다는 것을 기억하자. 
+- views에서 router 를 만들고 이를 register 해준다. 이는 위에서 만든 PostViewSet을 바탕으로 routing을 하는 것이다. 그래도 실제로 url을 결정하는 것은 urlpatterns의 path이다. 
+- runserver을 하면 API Root로 가게 된다. 
+- 여기서 GET 요청, POST 요청 모두 해볼 수 있다. 다만 post로 보낸 객체가 pk가 없는데, 이는 serializer.py에서 'id'를 추가해주면 된다. (또는 __all__로 해도 된다.)
+- 특정 항목에 대해 read_only를 설정할 수 있다. (id는 기본적으로 read_only=True이다.) 이를 위해 serializer.py에서 read_only_fields = (foo,) 형식으로 튜플을 추가해준다. 한 개만 적더라도 꼭 ,를 적어줘야 튜플로 인식된다. 
+- 같은 방법으로 write_only_field 도 가능하다.  
+
+## Viewset & Router
+
+### ViewSet에 이르는 과정. 
+
+- 뷰를 간략화하는 과정을 알아보자. 
+- APIView --> Mixins --> Generic CBV --> ViewSet 순으로 코드 복잡도는 낮아진다. 
+- 상속하는 관계이기 때문에 상위 개념을 알아야 한다. 
+
+### APIView
+
+- 

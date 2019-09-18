@@ -12,6 +12,7 @@ pillow = "*"
 django-allauth = "*"
 django-imagekit = "*"
 psycopg2 = "*"
+djangorestframework = "*"
 
 [requires]
 python_version = "3.6"
