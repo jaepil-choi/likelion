@@ -102,4 +102,55 @@
 
 ### APIView
 
-- 
+- 현재의 과정은 모두 django-rest-framework.org/tutorial 의 내용을 바탕으로 한 것임. (현재 3. CBV tutorial)
+- APIView를 상속하여 View를 설계할 땐 status와 response를 import 해 직접 응답과정을 만든다. 
+- APIView를 상속해 내 View class를 만들 땐 각 함수를 내가 쓰고자 하는 http method로 def 해준다. (def get 와 같이.)
+- 그리고 그 method를 어떻게 처리할 지 내가 직접 코드를 짜는 것이다. 그것이 APIView를 상속해 직접 class를 짜는 의의이다. 
+- views.py에서 PostList(APIView)를 만들 때, serializer를 many=True로 해줘야 한다. 일단 기억만 하자. 
+
+
+### mixins
+
+- 대부분의 API의 모델 논리는 비슷하다. List, Detail 등 비슷하다. 따라서 각 모델마다 이런 API 논리를 반복해주는 것은 낭비다. 여기서 탄생한게 mixins이다. 즉, 상속을 통해 또 중복을 제거한다. 
+- 이제 views.py에서 rest_famework의 mixins와 generic을 import 한다. 
+- 이제 기존의 view를 세 mixins에서 상속하게 만든다. class SnippetList(mixins.ListModelMixin, mixins.CreateModelMixin, generics.GenericAPIView): 그러면 이제 내 view를 여러 mixins에서 동시 상속을 하는 class로 만들 수 있다. 
+- 그러면 이제 각 get, post 등의 매소드가 한 줄짜리 리턴이 될 수 있다.
+- 그 이전에 class variable로 queryset = Snippet.objects.all() 그리고 serializer_class = SnippetSerializer 와 같이 선언을 해줘야 한다. 
+- 이는 기존 rest_framework의 소스코드를 보면 알 수 있는데, GenericAPIView에는 둘 모두 일단 =None으로 정의되어 있기에 이를 우리 모델에 맞게 초기화 시켜주는 것이다. 
+- 상속을 받았기 때문에 한 줄 return에 self.list와 self.create를 쓸 수 있다. 이들은 이름에서 볼 수 있듯 각각 .ListModelMixin, .CreateModelMixin에서 상속받은 매소드들이다. 
+- 이들은 내부적으로 기존에 강의에서 manual하게 코딩해주었던 list해주는 동작과 (.is_valid를 확인 한 다음 동작하는) create 해주는 동작과 매우 유사함을 알 수 있다. 우리가 가져다 쓰는 method는 그렇게 동작하는 것들이다. 
+- SnippetDetail에서도 똑같이 여러 메소드를 가져다 쓸 수 있다. 특정 post의 content를 get하는 것에 대해선 retrieve를, put하는 것은 update를, delete는 destroy를 쓴다. 
+
+### generic CBV
+
+- mixins를 써서 간단히 설계했지만, mixin조차도 생략하고 generic CBV로 더 쉽게 설계할 수 있다. 
+- 이번엔 rest_framework로부터 mixin이 아닌 generics를 import 해온다. 
+- 이제 generic.ListCreateAPIView와 generic.RetrieveUpdateDestroyAPIView 를 가져다 쓴다. 그 내부는 어떻게 생겼을까? 
+- SnippetList와 SnippetDetail 둘 다 여전히 최초의 초기화는 필요하지만, 그 내부는 결국 이전에 했던 mixins를 합친 모양이 될 것이다. .ListCreateAPIView의 소스코드를 참고하면, mixins 실습에서 했던 것과 완전히 같은 모양의 self.list, self.create를 가지고 있다. 
+- 즉, view를 설계할 때 내가 어느 것이 필요한가? 를 생각하고 만들어주면 된다. 
+
+### ViewSet
+
+- 마찬가지로 공식 튜토리얼을 참고한다. 
+- ViewSet은 소스코드를 보며 이해해보자. ViewSet은 말 그대로, literally, view클래스를 set, 즉 묶은 것이다. 소스코드 상에서 class GenericViewSet(ViewSetMixin, generics.GenericAPIView): 를 상속받은 후 이하의 내용은 pass 밖에 없으며 단지 두 클래스를 동시 상속 받는다는 것 자체가 이 ViewSet을 정의한다. 묶어주는 것에 불과하다. 
+- 총 4개의 ViewSet이 있지만, ReadOnlyModelViewSet과 ModelViewSet만 다뤄보자. 나머지 ViewSet과 GenericViewSet은 이것만 배우면 자동적으로 이해된다. 
+- ReadOnlyModelViewSet은 먼저 retrieve하고 이를 list하는, 또 말 그대로 read-only한 기능을 수행한다. 
+- 이제 이를 views.py에서 import한다. rest_framework의 viewsets를 import하면 된다. 
+- 참고: @+함수들 --> decorator이다. 개념을 알아두자. 
+- ViewSet을 쓰면 CRUD는 간단히 할 수 있다는 것을 알았는데, CRUD외의 로직을 함께 쓰고 싶으면 어떻게 해야할까? 나의 custom api는 어떻게 쓸까? 
+- custom api를 위해서 view에서 rest_framework.decorators에서 action을, rest_framework.response에서 Response를 import해준다. 
+- 이 때 @action decorator을 사용한다. 여기서 어떤 rederer을 쓸지 정하는 등 설정이 가능하다. 
+- 대표적으로 JSONRenderer, BrowsableAPIRenderer을 많이 사용한다. 
+- custom api는 default로 get 방식으로 처리가 되는데, 다른 방식을 원하면 action의 methods= 인자로 지정 가능하다. 
+- custom api는 마음대로 작성하면 된다. 이 때 url은 highlight가 custom api라면 이대로 하면 자동으로 post/2/highlight와 같은 식으로 나오는데, 이에 유의하여 url을 설계하자. 
+
+### Router
+
+- urlpatterns에서 router로 발전하는 과정을 살펴보자. 
+- ViewSet은 하나의 path 함수로 처리할 수 없다. ReadOnlyModelViewSet은 pk를 필요로 하지 않고 ModelViewSet은 pk를 필요로 하는 것 부터 서로 다른 모양새를 띈다. 
+- 따라서 여러 path를 묶어줘야 한다. == path의 두 번째 인자로 묶는다. 
+- path(요청처리할url, 요청을인자로받아처리할함수, namespace) 이기 떄문에 2번째 인자에 list(), create(), retrieve() 등의 함수를 묶어야 한다. 
+- 이는 as_view()를 통해 할 수 있다. as_view({'http메소드':'처리할함수'})와 같은 꼴로 넣어주면 된다. 
+- 이런 mapping 역시 redundant하기에 router가 있는 것이다. 
+- 이는 router=DefaultRouter()을 선언한 뒤 router.register(r'prefix가될단어', vies.SnippetViewSet) 와 같이 사용한다. 
+- 후반부의 설명은 실습 없이 진행되었고 설명이 부실하기 때문에 Official documentation의 tutorial을 직접 참고할 필요가 있다. 
